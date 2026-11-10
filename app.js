@@ -1025,7 +1025,8 @@
     siteBlankCell.hidden = on;
     siteBlankSection.classList.toggle('has-widget', on);
     // Страница пришла с компонентом — её основной виджет (карточка товара/блюда) удалить нельзя: нет «Удалить» ни у виджета, ни у его секции
-    const locked = on && !!sitePage.comp;
+    // То же у страницы товара сайта (productPage): её виджет «Товар» не удаляется
+    const locked = on && (!!sitePage.comp || !!sitePage.productPage);
     $('#siteProductDelete').hidden = locked;
     $('[data-sec-cmd="delete"]', siteBlankSection).hidden = locked;
     siteProduct.classList.remove('is-active');
@@ -1040,7 +1041,7 @@
     else siteProduct.classList.add('is-active');
   }
   function siteRemoveProduct() {
-    if (sitePage.comp) return; // основной виджет страницы компонента не удаляется
+    if (sitePage.comp || sitePage.productPage) return; // основной виджет страницы компонента и страницы товара не удаляется
     sitePage.product = false;
     siteProductSyncShop();
     siteProductRender(false);
@@ -1616,6 +1617,7 @@
       '</span>');
     row.dataset.id = p.id;
     row.querySelector('.ls-item__name').textContent = p.name;
+    if (p.productPage) row.querySelector('.ls-item__cmds').remove(); // страницу карточки товара удалить нельзя: меню «Ещё» ей не нужно
     return row;
   }
   const LS_GROUP_EXPANDER = false; // экспандер групп пока скрыт: true вернёт стрелку и сворачивание
@@ -1698,7 +1700,7 @@
       '<button class="btn btn--ghost btn--style-label btn--size-m btn--icon ls-cmd ls-cmd--24" type="button" data-save="cancel" aria-label="Отменить"><span class="btn__icon">&#xE66C;</span></button>');
     row.classList.add('is-edit');
     row.querySelector('.ls-item__name').replaceWith(input);
-    row.querySelector('.ls-item__cmds').before(save);
+    input.after(save); // у карточки товара нет блока команд — кнопки сохранения встают сразу за полем
     lsEditing = { page, row, input };
     input.focus();
     input.select();
@@ -2016,7 +2018,7 @@
       ...lsInitialPages(),
       page('Меню'),
       page('Профиль', { blank: true, compWidget: 'Профиль покупателя' }),
-      page('Карточка товара', { blank: true, product: true }),
+      page('Карточка товара', { blank: true, product: true, productPage: true }), // productPage — страницу и её виджет «Товар» удалить нельзя
     ];
   }
 
