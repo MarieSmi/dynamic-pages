@@ -2054,6 +2054,7 @@
       catalogHomeSet(false);
       lsPages = scenTypicalPages();
       productPageId = lsPages.find((p) => p.product).id;
+      lsActive = lsPages.find((p) => p.name === 'Меню').id; // сайт открывается на «Меню» с каталогом
     }
     salesSaved = catalogAdded ? ROOT_SALES.slice(0, 2).map((point) => ({ id: point.id, price: point.price })) : [];
     shopCatalogPin.hidden = catalogAdded;
