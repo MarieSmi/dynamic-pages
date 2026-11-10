@@ -925,15 +925,23 @@
 
   // Новая страница и страницы компонентов (blank) — вместо сайта пустая секция под шапкой сайта, на ней ничего не выделено.
   let siteShown = null;
+  const siteTumbler = $('#chDevice'); // в окне переключатель устройств неактивен, как в popups
   let sitePage = null; // открытая страница
   // На открытой странице ничего не выделено: выделение появляется только кликом
   function siteClearSelection() {
     for (const widget of [siteCatalog, siteProduct, siteSection, siteBlankSection]) widget.classList.remove('is-active');
   }
   function siteShowPage(page) {
-    if (page.id === siteShown) return;
-    siteShown = page.id;
+    // Страница товара показывается так, как её открывает каталог: «В новом окне» — окном 800 по центру контента без шапки и подвала сайта (как вид «в окне» у страниц в popups)
+    const isWindow = !!page.product && catSetOpenMode.mode === 'window';
+    const shown = `${page.id}:${isWindow}`;
+    if (shown === siteShown) return;
+    siteShown = shown;
     siteMain.hidden = !!page.blank;
+    siteBlank.classList.toggle('is-window', isWindow);
+    siteContent.classList.toggle('is-window', isWindow);
+    siteTumbler.classList.toggle('is-off', isWindow);
+    siteTumbler.querySelectorAll('.ch-seg').forEach((seg) => { seg.disabled = isWindow; });
     // Главная — баннер и «О нас», на «Меню» — только секция с каталогом. В сценариях компонентов каталог стоит на главной между ними
     siteMain.classList.toggle('is-home', !!page.home);
     if (catalogHome) siteCatalogShow(catalogAdded);
