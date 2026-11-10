@@ -822,6 +822,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .catset { position: absolute; z-index: 20; width: 430px; }
 .catset__main { gap: 8px; }
 .catset__lookup { display: flex; align-items: center; gap: 4px; height: 28px; border-bottom: 1px solid var(--border-unaccented_border-color); }
+.catset__lookup[hidden] { display: none; }
 .catset__value { min-width: 0; margin: 0; padding: 0; border: 0; background: none; color: var(--text-text-color); font: inherit; font-size: 16px; letter-spacing: -.2256px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
 .catset__value:hover { color: var(--text-hover_text-color); }
 /* подсветка значения (Figma 2547:84597): фиолетовая подложка под текстом, высота 21 */
