@@ -25,14 +25,11 @@
     ],
     device: 'monitor',
     scenarios: [
-      { group: 'Компоненты', items: [
-        { id: 'catalog-add', title: 'Добавление виджета' },
-        { id: 'catalog-setup', title: 'С компонентами' },
-      ] },
+      { id: 'catalog-add', title: 'Добавление каталога' },
     ],
     team: [
       { label: 'Design', name: 'Смирнова Мария', links: [
-        { title: 'Описание', href: 'https://online.sbis.ru/shared/disk/8a1d0f8c-06f5-47f1-924b-23c7f2efd143' },
+        { title: 'Концепт', href: 'https://project.sbis.ru/shared/disk/63e4cc46-a77f-459c-9da3-3e4f1c731f59' },
       ] },
       { label: 'Develop', name: 'Волоцкой Вадим', links: [
         { title: 'Разработка макета', href: 'https://project.sbis.ru/opendoc.html?guid=019fa875-c83e-78a9-8b5e-efe37d762dc1&client=3' },
