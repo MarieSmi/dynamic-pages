@@ -20,7 +20,7 @@
 </head>
 <body>
   <div class="viewport">
-    <div class="stage" id="stage" data-scenario="catalog-add">
+    <div class="stage" id="stage" data-scenario="typical">
 
       <!-- Шапка конструктора (Figma rHabzni5OI5D4fxBLQdj2m 5:28058): только ховер, без действий по клику -->
       <header class="ch">
@@ -254,7 +254,7 @@
           <section class="sales-settings" id="salesSettings" aria-label="Точки продаж сайта" hidden>
             <div class="sales-settings__head"><div>Ресторан</div></div>
             <div class="rs-site__props comp-props">
-              <span class="rs-site__label">Выберите страницу товара</span><button class="sales-empty__link comp-props__pick" type="button">Выбрать</button>
+              <span class="rs-site__label">Страница товара</span><button class="sales-empty__link comp-props__pick" id="productPagePick" type="button" aria-haspopup="menu" aria-controls="productPageMenu" aria-expanded="false">Выберите страницу</button>
             </div>
             <div class="sales-rows" id="salesSettingsRows"></div>
             <div class="rs-site__chips comp-options" id="salesSettingsOptions"></div>
@@ -266,6 +266,11 @@
             <div class="rs-comps__title">Добавить компонент</div>
             <div class="rs-comps__chips" id="compChips"></div>
           </section>
+        </div>
+        <!-- Выбор страницы товара: радиоменю, как «Доступ» у новой страницы. Пункты — страницы сайта, строит productPageMenuFill. Открывается, только если страниц больше одной -->
+        <div class="mw-menu ls-mode product-page-menu" id="productPageMenu" role="menu" aria-label="Страница товара" hidden>
+          <div class="mw-menu__list"></div>
+          <button class="mw-menu__close" type="button" id="productPageClose" aria-label="Закрыть меню страниц"><img src="assets/img/close-menu.svg" width="12" height="12" alt=""></button>
         </div>
       </section>
 

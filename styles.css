@@ -248,7 +248,9 @@ ul { list-style: none; margin: 0; padding: 0; }
 .site-about__content { display: flex; flex-direction: column; align-items: flex-start; gap: 32px; }
 .site-about h2 { margin: 0 0 12px; font-size: 28px; font-weight: 500; }
 .site-about p { margin: 0; color: #47382fbf; font-size: 14px; line-height: 24px; letter-spacing: .56px; text-transform: uppercase; }
-.site-about__button { min-height: 48px; padding: 0 24px; border-radius: 100px; font-size: 14px; font-weight: 500; line-height: 24px; letter-spacing: .56px; text-transform: uppercase; background: linear-gradient(#ffffff33,#ffffff33), linear-gradient(#47382f1a,#47382f1a), #e8c37d; }
+/* Кнопка сайта: «Подробнее о нас» и кнопки в превью магазина — одно оформление */
+.site-about__button, .site-btn { min-height: 48px; padding: 0 24px; border-radius: 100px; font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 500; line-height: 24px; letter-spacing: .56px; text-transform: uppercase; color: #47382f; background: linear-gradient(#ffffff33,#ffffff33), linear-gradient(#47382f1a,#47382f1a), #e8c37d; }
+.site-btn { display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; }
 
 /* ---------- Левый сайдбар (Figma rHabzni5OI5D4fxBLQdj2m 5:28393) ---------- */
 .ls-panel {
@@ -348,6 +350,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 /* «Способ отображения»: ширина по самому длинному пункту с отступами пункта (8 + маркер 14 + текст + 16) и списка (8 + 8) */
 .mw-menu.open-mode__menu { width: max-content; }
 .open-mode__menu .mw-menu__text { flex: none; }
+.mw-menu.product-page-menu { width: max-content; min-width: 200px; max-width: 320px; }
 .ls-mode__toggle { flex: none; width: 14px; height: 32px; display: flex; align-items: center; justify-content: center; padding-right: 2px; }
 .ls-mode__toggle::before { content: ""; width: 7px; height: 7px; border-radius: 50%; visibility: hidden; }
 .ls-mode__item:hover .ls-mode__toggle::before { visibility: visible; border: 1px solid var(--border-border-color); background: var(--background-background-color); }
@@ -423,9 +426,16 @@ ul { list-style: none; margin: 0; padding: 0; }
 .rs-w__img img { position: absolute; max-width: none; }
 .rs-w__plus { position: absolute; z-index: 1; left: 50%; top: calc(50% + .5px); width: 36px; height: 36px; padding-bottom: 1px; transform: translate(-50%, -50%); border-radius: 18px; background: #eeebff; color: #5a49ab; opacity: 0; transition: opacity .12s; }
 .rs-w:hover .rs-w__plus { opacity: 1; }
+/* «Плавающие кнопки»: превью вёрсткой — плашка «корзина + Заказать» и круглый чат прижаты вправо */
+.rs-fab { position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding-right: 1px; background: #fff; border: 1px solid #f0f0f0; border-radius: 8px; }
+.rs-fab__order { display: flex; align-items: center; height: 48px; border-radius: 24px; background: #fff; box-shadow: 0 2px 10px rgba(0, 0, 0, .12); }
+.rs-fab__cart { width: 72px; color: #47382f; }
+.rs-fab__chat { flex: none; width: 48px; height: 48px; padding: 0; font-family: "cbuc-icons24"; font-size: 24px; line-height: 1; text-transform: none; letter-spacing: 0; box-shadow: 0 2px 10px rgba(0, 0, 0, .12); }
+/* «Бонусы»: превью вёрсткой в оформлении сайта */
+.rs-bonus { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 0 12px; background: #fff; border: 1px solid #f0f0f0; border-radius: 8px; font-family: 'Montserrat', sans-serif; color: #47382f; }
+.rs-bonus__title { font-size: 18px; font-weight: 500; line-height: 24px; }
+.rs-bonus__sub { margin: 4px 0 16px; color: #47382fbf; font-size: 12px; line-height: 18px; letter-spacing: .48px; text-transform: uppercase; }
 .rs-w__pv > .pin { z-index: 2; left: calc(50% - 12px); top: calc(50% - 12px); }
-/* каталоги, кроме «Меню ресторана», только показаны в магазине: ховер есть, клика нет */
-.rs-w[data-widget^="catalog-"] { cursor: default; }
 
 /* данные */
 .rs-head--data { min-height: 46px; padding: 10px 12px; gap: 8px; }
@@ -525,6 +535,8 @@ ul { list-style: none; margin: 0; padding: 0; }
 .sales-empty__link:hover { text-decoration: underline; }
 .comp-props { padding: 0 12px; margin-bottom: 4px; } /* свойства компонента в его группе: отступы — как у текста про точки продаж */
 .comp-props__pick { font-size: 14px; }
+/* свойства — последнее видимое в плашке (точек продаж и доп. настроек нет): снизу только поле плашки 8px, как сверху */
+.rs-params .sales-settings:has(> .sales-rows[hidden]):has(> .comp-options:empty) .comp-props { margin-bottom: 0; }
 .sales-row { position: relative; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); align-items: center; gap: 10px; min-height: 32px; padding: 0 12px; font-size: 14px; letter-spacing: -.1974px; }
 .sales-settings .sales-row { padding-right: 66px; }
 .sales-row:hover, .sales-row:focus-within { background: var(--menu-item-hover); }

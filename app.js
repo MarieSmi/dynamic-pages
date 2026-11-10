@@ -25,7 +25,8 @@
     ],
     device: 'monitor',
     scenarios: [
-      { id: 'catalog-add', title: 'Добавление каталога' },
+      // { id: 'catalog-add', title: 'Добавление каталога' }, // пока скрыт; вернуть — раскомментировать и вернуть data-scenario="catalog-add" в index.html
+      { id: 'typical', title: 'Типовое заполнение' },
     ],
     team: [
       { label: 'Design', name: 'Смирнова Мария', links: [
@@ -111,6 +112,11 @@
     stage.classList.toggle('is-rs-closed', !rsPanel);
     for (const name of ['shop', 'data']) $('#rs-' + name).hidden = name !== rsPanel || rsParamsOpen;
     rsParams.hidden = !rsParamsOpen;
+    if (rsParamsOpen) productPageRender(); // при старте окно закрыто: до объявления productPage* не доходим
+    else { // меню страницы товара закрывается вместе с окном; через DOM — rsRender зовётся и до объявления productPage*
+      $('#productPageMenu').hidden = true;
+      $('#productPagePick').setAttribute('aria-expanded', 'false');
+    }
     for (const b of document.querySelectorAll('.rp-btn[data-rp]')) {
       const on = rsParamsOpen ? b.dataset.rp === 'settings' : b.dataset.rp === rsPanel;
       b.classList.toggle('is-active', on);
@@ -193,7 +199,7 @@
   // Порядок — как в таблице документа; он же порядок чипсов в «Параметрах сайта»
   // Пока один компонент — «Ресторан»: без зависимостей, приносит страницу товара «Карточка блюда», без доп. настроек «Доставка»/«Самовывоз»
   const COMP = {
-    restaurant: { name: 'Ресторан', desc: 'Меню и карточки блюд на сайте, цены и наличие из точек продаж', deps: [], pages: ['Карточка блюда'], widget: 'Меню ресторана', widgetPage: 'Карточка блюда' },
+    restaurant: { name: 'Ресторан', desc: 'Меню и карточки блюд на сайте, цены и наличие из точек продаж', deps: [], pages: ['Карточка блюда'], widget: 'Каталог', widgetPage: 'Карточка блюда' },
   };
   const compOn = new Set();    // подключавшиеся, в порядке подключения: их страницы и настройки на сайте
   const compRoots = new Set(); // подключённые виджетом, а не как зависимость
@@ -298,8 +304,8 @@
     compChipsRender();
     // Прежний вид «Параметров сайта»: точки продаж с прайсами — когда есть каталог или подключён «Ресторан»
     $('#salesSettings').hidden = false; // единственная группа «Параметров сайта» — видна всегда
-    salesRenderRows($('#salesSettingsRows'), salesSaved, true);
-    $('#salesData').hidden = !catalogAdded && !compOn.has('restaurant');
+    $('#salesSettingsRows').hidden = true; // точки продаж в «Параметрах сайта» не показываем; вернуть: salesRenderRows($('#salesSettingsRows'), salesSaved, true)
+    $('#salesData').hidden = true; // «Текущая точка» в «Данных» пока скрыта; вернуть: !catalogAdded && !compOn.has('restaurant')
     $('#siteCatalog').classList.toggle('is-demo', (catalogHome || catalogMenu) && !salesSaved.length); // без точек продаж — демоданные
     salesRenderRows($('#salesPopupRows'), salesCurrent());
     $('#salesReset').disabled = !salesDraft?.length; // сброс убирает точки: без них сбрасывать нечего
@@ -653,22 +659,37 @@
   // [название, описание, высота, картинка, белая подложка, положение картинки из макета, файл картинки, если не <картинка>.png]
   const COVER = 'inset:0;width:100%;height:100%;object-fit:cover';
   const CONTAIN = 'inset:0;width:100%;height:100%;object-fit:contain';
-  // Каталоги — по компонентам из документа: работаем только с «Меню ресторана» (компонент «Ресторан»), у остальных нет ни клика, ни ховера
+  // Каталог — один, виджет компонента «Ресторан»
   const SHOP_WIDGETS = [
-    ['Меню ресторана', 'Блюда и напитки по разделам меню с ценами', 290, 'catalog', false, CONTAIN, 'catalog-menu.svg'],
-    ['Каталог товаров', 'Витрина магазина: разделы, товары и цены', 290, 'catalog-goods', false, CONTAIN, 'catalog-goods.svg'],
-    ['Каталог услуг', 'Услуги с длительностью, ценой и записью к специалисту', 290, 'catalog-services', false, CONTAIN, 'catalog-services.svg'],
-    ['Каталог номеров', 'Номера отеля с вместимостью, ценой и бронированием', 290, 'catalog-rooms', false, CONTAIN, 'catalog-rooms.svg'],
-    ['Карточка товара', 'Для отображения товара со всеми его свойствами', 357, 'product', true, CONTAIN],
-    ['Корзина', 'Для хранения выбранных товаров, расчета итоговой стоимости и быстрого перехода к оформлению заказа', 231, 'cart', true, CONTAIN],
-    ['Мои контакты', 'Закрепите контакты для быстрого доступа, звоните и пишите коллегам в один клик', 267, 'contacts', false, 'left:-8.18%;top:-16.06%;width:110.98%;height:126.28%'],
-    ['Список страниц', 'Позволяет редактировать и настраивать страницы', 190, 'pages', false, 'left:-13.21%;top:-23.68%;width:121.23%;height:137.37%'],
-    ['Текстовый виджет', 'Позволяет редактировать и просматривать текст', 159, 'text', false, 'left:-1.18%;top:-5.37%;width:104.72%;height:110.07%'],
-    ['Уведомления', 'Виджет для отображения уведомлений по категориям', 267, 'notifications', false, 'left:-2.12%;top:-3.35%;width:105.66%;height:107.43%'],
+    ['Каталог', 'Виджет товаров и услуг, доступных в вашем заведении', 290, 'catalog', false, CONTAIN, 'catalog-menu.svg'],
+    // Виджеты после каталога — Figma 8hkrT2mgrsbZ6zH254V6Y0 14925:60682. Часть превью вырезана из общих картинок (*-sprite.png)
+    ['Плавающие кнопки', 'Кнопки заказа, бронирования и чата', 115, 'floating'],
+    ['Бонусы', 'Виджет позволяет вступить в программу лояльности и следить за балансом бонусов', 221, 'bonuses'],
+    ['Абонементы и сертификаты', 'С помощью виджета клиент может купить сертификат себе или в подарок', 211, 'certificates', false, 'left:-2.45%;top:-158.55%;width:105.83%;height:500%', 'promo-sprite.png'],
+    ['Реклама', 'Привлекайте больше клиентов. Виджет покажет объявления для разных заведений и устройств', 333, 'ads', false, 'left:-2.45%;top:-170.8%;width:105.83%;height:277.37%', 'promo-sprite.png'],
+    ['Характеристики', 'Виджет позволяет настроить теги (характеристики) заведения для удобства поиска', 133, 'features', false, 'left:-1.23%;top:-6.76%;width:104.29%;height:120.27%'],
+    ['Адрес', 'Местонахождение вашего заведения', 96, 'address', false, 'left:-2.47%;top:-486.71%;width:106.17%;height:882.86%', 'place-sprite.png'],
+    ['Режим работы', 'Виджет настройки режима работы заведения', 125, 'hours', false, 'left:-2.47%;top:-448.26%;width:106.17%;height:566.78%', 'place-sprite.png'],
+    ['Контакты', 'Виджет настройки контактной информации', 215, 'place-contacts', false, 'left:-4.32%;top:-10.01%;width:108.64%;height:255.63%'],
+    ['Описание', 'Текстовый виджет для детального описания деятельности вашего заведения', 221, 'description', false, 'left:-2.76%;top:-8.64%;width:105.83%;height:425.93%', 'text-sprite.png'],
+    ['О компании', 'Текстовый виджет для отображения информации о контрагенте', 103, 'about', false, 'left:-2.76%;top:-570.45%;width:105.83%;height:1568.18%', 'text-sprite.png'],
+    ['3D-тур', 'Виджет для показа 3D-тура по заведению', 370, 'tour', false, 'left:-2.76%;top:-108.9%;width:105.83%;height:211.66%', 'text-sprite.png'],
+    ['Галерея', 'Виджет показывает загруженные изображения', 214, 'gallery', false, 'left:-1.84%;top:-6.47%;width:105.52%;height:314.12%', 'media-sprite.png'],
+    ['Новости', 'Виджет отображает последние свежие новости', 322, 'news', false, 'left:-1.84%;top:-86.69%;width:105.52%;height:192.09%', 'media-sprite.png'],
+    ['Промокоды', 'Показывает активные промокоды, доступные для использования клиентами', 363, 'promo', false, 'left:-4.29%;top:-4.28%;width:106.44%;height:107.24%'],
+    ['События', 'Расскажите о мероприятиях и курсах в вашем заведении', 390, 'events', false, 'left:-7.36%;top:-6.04%;width:115.34%;height:173.11%', 'feed-sprite.png'],
+    ['Отзывы', 'Виджет показывает отзывы заведения', 192, 'reviews', false, 'left:-7.36%;top:-277.7%;width:115.34%;height:387.16%', 'feed-sprite.png'],
+    ['Профиль', 'Виджет профиля с возможностью изменения личных данных пользователя', 239, 'profile', false, 'left:-2.47%;top:-2.23%;width:104.94%;height:107.82%'],
   ];
+  // Превью, собранные вёрсткой вместо картинки. Кнопки — в оформлении сайта, как «Подробнее о нас» (.site-btn)
+  const SHOP_PREVIEWS = {
+    // корзина и «Заказать» — одна плашка, чат — отдельная круглая кнопка
+    floating: '<div class="rs-fab"><div class="rs-fab__order"><span class="ico24 rs-fab__cart">&#xEA5F;</span><span class="site-btn rs-fab__btn">Заказать</span></div><span class="ico24 site-btn rs-fab__chat">&#xE90F;</span></div>',
+    bonuses: '<div class="rs-bonus"><div class="rs-bonus__title">Кэшбек 5% и 150 бонусов в подарок</div><div class="rs-bonus__sub">Наша программа лояльности</div><span class="site-btn rs-bonus__btn">Присоединиться</span></div>',
+  };
   const shopWidgetsHtml = (list) => list.map(([name, desc, h, img, white, pos, file = img + '.png']) =>
     `<div class="rs-w${img.startsWith('catalog') ? ' rs-w--catalog' : ''}" data-widget="${img}" style="height:${h}px"><div><div class="rs-w__name">${name}</div><div class="rs-w__desc">${desc}</div></div>` +
-    `<div class="rs-w__pv${white ? ' rs-w__pv--white' : ''}"><div class="rs-w__img"><img src="assets/img/shop/${file}" alt="" style="${pos}"></div><span class="ico24 rs-w__plus">&#xEAE9;</span></div></div>`).join('');
+    `<div class="rs-w__pv${white ? ' rs-w__pv--white' : ''}"><div class="rs-w__img">${SHOP_PREVIEWS[img] || `<img src="assets/img/shop/${file}" alt="" style="${pos}">`}</div><span class="ico24 rs-w__plus">&#xEAE9;</span></div></div>`).join('');
   $('#rsWidgets').innerHTML = shopWidgetsHtml(SHOP_WIDGETS);
 
   // Виджет на фрейме: клик по «Каталогу» в магазине ставит его в зону контента секции вместо пустой ячейки и выделяет,
@@ -679,7 +700,7 @@
   for (const footer of document.querySelectorAll('[data-site-footer]')) footer.append($('#siteFooter').content.cloneNode(true));
   const siteSection = $('#siteSection');
   const siteCatalog = $('#siteCatalog');
-  // Демоданные: пока у компонента нет точек продаж, вместо фото блюд — демо-фото, те же, что в превью «Меню ресторана» (.is-demo ставит salesRender)
+  // Демоданные: пока у компонента нет точек продаж, вместо фото блюд — демо-фото, те же, что в превью «Каталог» (.is-demo ставит salesRender)
   siteCatalog.querySelectorAll('.site-card__img, .site-cat').forEach((box, i) => {
     const demo = el('img', 'site-demo');
     demo.src = `assets/img/site/demo/dish-${i % 6 + 1}.jpg`;
@@ -721,12 +742,13 @@
   scheduleWidgetToolbars();
 
   const shopCatalog = $('#rsWidgets [data-widget="catalog"]').closest('.rs-w');
-  const shopProduct = $('#rsWidgets [data-widget="product"]').closest('.rs-w');
+  // «Карточки товара» и «Корзины» в магазине нет: карточку приносит компонент. Виджет карточки живёт вне магазина, чтобы её логика не ломалась
+  const shopProduct = el('div', null, shopWidgetsHtml([['Карточка товара', 'Для отображения товара со всеми его свойствами', 357, 'product', true, CONTAIN]])).firstChild;
   // Подсказка клика: видна там, где карточку можно поставить — на новой странице без карточки
   const shopProductPin = el('span', 'pin', '<img src="assets/img/pin-cursor.svg" width="15" height="15" alt="">');
   shopProductPin.setAttribute('aria-hidden', 'true');
   $('.rs-w__pv', shopProduct).append(shopProductPin);
-  // Подсказка клика на «Меню ресторана»: видна, пока виджет в магазине. Стоит у заголовка, а не на превью
+  // Подсказка клика на «Каталог»: видна, пока каталога нет на сайте (сам виджет из магазина не уходит). Стоит у заголовка, а не на превью
   const shopCatalogPin = el('span', 'pin', '<img src="assets/img/pin-cursor.svg" width="15" height="15" alt="">');
   shopCatalogPin.setAttribute('aria-hidden', 'true');
   $('.rs-w__name', shopCatalog).classList.add('rs-w__name--pin');
@@ -741,7 +763,7 @@
     catalogHome = on;
     siteMain.classList.toggle('is-catalog-home', on);
   }
-  // «Меню ресторана» встаёт на главную и подключает «Ресторан» со всей цепочкой зависимостей и их страницами.
+  // «Каталог» встаёт на главную и подключает «Ресторан» со всей цепочкой зависимостей и их страницами.
   // Окно настроек открывается, только если компонент ещё не настроен (нет точек продаж), иначе виджет берёт настройки компонента.
   function siteAddCatalog() {
     if (catalogAdded) return;
@@ -750,7 +772,7 @@
     if (lsActive !== home.id) lsSelect(home.id);
     catalogHomeSet(true);
     catalogAdded = true;
-    shopCatalog.hidden = true;
+    shopCatalogPin.hidden = true;
     compConnect('restaurant', true);
     siteCatalogShow(true);
     siteCatalog.classList.add('is-active');
@@ -767,10 +789,12 @@
       catalogHomeSet(true);
     }
     salesRender();
-    scenSyncing = true;
-    frame.select('catalog-add');
-    scenSyncing = false;
-    shopCatalog.hidden = false;
+    if (stage.dataset.scenario !== 'typical') { // в типовом заполнении сценарий остаётся: удалили один виджет заполненного сайта
+      scenSyncing = true;
+      frame.select('catalog-add');
+      scenSyncing = false;
+    }
+    shopCatalogPin.hidden = false;
     siteCatalogShow(false);
     siteCatalog.classList.remove('is-active');
   }
@@ -800,7 +824,7 @@
     catalogHomeSet(false);
     catalogMenu = true;
     catalogAdded = true;
-    shopCatalog.hidden = true;
+    shopCatalogPin.hidden = true;
     siteCatalogShow(true);
     siteCatalog.classList.remove('is-active');
   }
@@ -1653,6 +1677,8 @@
     // Страница компонента принадлежит ему: её нельзя сделать главной, скрыть, дублировать и удалить — удаляет только сам компонент
     const comp = !!lsPage(id).comp;
     for (const act of ['home', 'duplicate', 'hide', 'delete']) $(`[data-act="${act}"]`, lsMenu).hidden = comp;
+    // Единственную свою страницу удалить нельзя: у сайта должна остаться хотя бы одна
+    if (lsPages.filter((p) => !p.comp).length === 1) $('[data-act="delete"]', lsMenu).hidden = true;
     lsMenu.hidden = false;
     const r = stageRect(btn);
     lsMenu.style.left = Math.round(r.left + r.width / 2 + 26 - lsMenu.offsetWidth) + 'px'; // центр крестика — на центре «⋮»: 26 от правого края меню, 24 от верхнего
@@ -1886,6 +1912,51 @@
   });
   document.addEventListener('mousedown', (e) => { if (!e.target.closest('#lsAccessMenu, #lsAccess')) lsAccessClose(); });
 
+  // «Страница товара» в «Параметрах сайта»: одна страница на сайте — встаёт по клику сразу, несколько — радиоменю со страницами (как «Доступ»)
+  const productPagePick = $('#productPagePick');
+  const productPageMenu = $('#productPageMenu');
+  let productPageId = null;
+  function productPageRender() {
+    if (productPageId != null && !lsPage(productPageId)) productPageId = null; // выбранную страницу удалили
+    productPagePick.textContent = lsPage(productPageId)?.name ?? 'Выберите страницу';
+  }
+  function productPageSet(id) {
+    productPageId = id;
+    productPageRender();
+  }
+  function productPageClose() {
+    productPageMenu.hidden = true;
+    productPagePick.setAttribute('aria-expanded', 'false');
+  }
+  productPagePick.addEventListener('click', () => {
+    if (!productPageMenu.hidden) { productPageClose(); return; }
+    if (lsPages.length === 1) { productPageSet(lsPages[0].id); return; }
+    const list = $('.mw-menu__list', productPageMenu);
+    list.replaceChildren(...lsPages.map((page) => {
+      const on = page.id === productPageId;
+      const item = el('button', 'mw-menu__item ls-mode__item' + (on ? ' is-selected' : ''), '<span class="ls-mode__toggle"></span><span class="mw-menu__text"></span>');
+      item.type = 'button';
+      item.setAttribute('role', 'menuitemradio');
+      item.setAttribute('aria-checked', on);
+      item.dataset.pageId = page.id;
+      $('.mw-menu__text', item).textContent = page.name;
+      return item;
+    }));
+    // первый пункт — на уровне ссылки, маркер левее текста, как у «Доступа»
+    const r = stageRect(productPagePick);
+    const box = stageRect(rsParams);
+    productPageMenu.style.left = Math.round(r.left - box.left - 30) + 'px';
+    productPageMenu.style.top = Math.round(r.top + r.height / 2 - box.top - 22) + 'px';
+    productPageMenu.hidden = false;
+    productPagePick.setAttribute('aria-expanded', 'true');
+  });
+  productPageMenu.addEventListener('click', (e) => {
+    const item = e.target.closest('[data-page-id]');
+    if (item) productPageSet(Number(item.dataset.pageId));
+    if (item || e.target.closest('#productPageClose')) { productPageClose(); productPagePick.focus(); }
+  });
+  document.addEventListener('mousedown', (e) => { if (!e.target.closest('#productPageMenu, #productPagePick')) productPageClose(); });
+
   function lsDescriptionShow(show) {
     lsSeoDescriptionField.hidden = !show;
     lsSeoDescriptionAdd.hidden = show;
@@ -1937,8 +2008,20 @@
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') lsCloseMenu(); });
 
-  // Сценарии панели — состояния сайта. «Добавление виджета» — у сайта только главная, ни одного компонента;
-  // «С компонентами» — «Ресторан» уже подключён, у него две точки продаж, каталог стоит на главной.
+  // Типовое заполнение: сайт уже собран — «Главная», «Меню» с каталогом, «Профиль» с виджетом покупателя, «Карточка товара» с карточкой.
+  // Это свои страницы сайта, а не страницы компонента. «Ресторан» подключён с двумя точками продаж, страница товара — «Карточка товара»
+  function scenTypicalPages() {
+    const page = (name, extra) => ({ id: lsNextId++, name, off: false, mode: 'page', ...extra });
+    return [
+      ...lsInitialPages(),
+      page('Меню'),
+      page('Профиль', { blank: true, compWidget: 'Профиль покупателя' }),
+      page('Карточка товара', { blank: true, product: true }),
+    ];
+  }
+
+  // Сценарии панели — состояния сайта. «Добавление каталога» — у сайта только главная, ни одного компонента;
+  // «Типовое заполнение» — заполненный сайт с подключённым «Рестораном» (scenTypicalPages).
   function scenApply(scenario) {
     popupsClose();
     lsNewClose();
@@ -1946,19 +2029,27 @@
     lsFinishRename(false);
     lsPages = lsInitialPages();
     lsActive = 1;
+    productPageId = null;
     compOn.clear();
     compRoots.clear();
     catalogHomeSet(true);
     catalogMenu = false;
-    catalogAdded = scenario === 'catalog-setup';
-    if (catalogAdded) compConnect('restaurant', true);
+    const typical = scenario === 'typical';
+    catalogAdded = typical;
+    if (typical) {
+      // компонент подключён без своих страниц: их роль играют страницы сайта, каталог стоит на «Меню»
+      compOn.add('restaurant');
+      compRoots.add('restaurant');
+      catalogHomeSet(false);
+      lsPages = scenTypicalPages();
+      productPageId = lsPages.find((p) => p.product).id;
+    }
     salesSaved = catalogAdded ? ROOT_SALES.slice(0, 2).map((point) => ({ id: point.id, price: point.price })) : [];
-    shopCatalog.hidden = catalogAdded;
+    shopCatalogPin.hidden = catalogAdded;
     siteCatalogShow(catalogAdded);
     salesRender();
     siteShown = null; // главная открывается заново: выделение и секции из прошлого сценария не переносятся
     lsRender();
-    if (catalogAdded) siteCatalog.classList.add('is-active');
   }
 
   lsSetCollapsed(lsReadCollapsed());
