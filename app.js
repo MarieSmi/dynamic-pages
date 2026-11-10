@@ -951,6 +951,7 @@
     siteContent.scrollTop = 0;
     secClose();
     bgClose();
+    catSetClose(); // настройки каталога не переезжают на другую страницу
     siteClearSelection();
     sitePage = page;
     secApply(page.section, siteBlankSection);
