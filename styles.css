@@ -846,5 +846,3 @@ ul { list-style: none; margin: 0; padding: 0; }
 .catset__rect--b { border: 1px solid var(--c); }
 .catset__rect--d { border: 1px dashed var(--c); }
 
-/* Заголовок рамки демо скрыт, шапка сохраняет высоту — сцена остаётся на месте */
-.df-head { visibility: hidden; }
