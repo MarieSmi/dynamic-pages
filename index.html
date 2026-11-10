@@ -251,24 +251,11 @@
           <button class="btn btn--ghost btn--style-label btn--icon" type="button" id="rsParamsClose" aria-label="Закрыть"><img src="assets/img/close-tool.svg" width="28" height="28" alt=""></button>
         </div>
         <div class="rs-params__body">
-          <!-- Блок «Сайт»: Figma 2854:63032. Сначала свойства, за ними SEO-чипсы. Редакторы — в одной колонке, в 8px от самой длинной метки -->
-          <section class="rs-site" aria-label="Сайт">
-            <div class="rs-site__title"><img class="sales-settings__icon" src="assets/img/comp/site.svg" width="24" height="24" alt="">Сайт</div>
-            <div class="rs-site__props">
-              <span class="rs-site__label">Владелец</span><span class="rs-site__owner"><span class="rs-site__val">Тензор, ООО</span><span class="ico rs-site__clear" aria-hidden="true">&#xE66C;</span></span>
-              <span class="rs-site__label">Иконка сайта (favicon)</span><img class="rs-site__favicon" src="assets/img/favicon.png" width="28" height="28" alt="">
-            </div>
-            <div class="rs-site__chips">
-            <button class="chips chips--size-m" type="button"><span class="chips__caption">HTML - код</span></button>
-            <button class="chips chips--size-m" type="button"><span class="chips__caption">Яндекс.Вебмастер</span></button>
-            <button class="chips chips--size-m" type="button"><span class="chips__caption">Яндекс.Метрика</span></button>
-            <button class="chips chips--size-m" type="button"><span class="chips__caption">VK Пиксель</span></button>
-            <button class="chips chips--size-m" type="button"><span class="chips__caption">Google Search Console</span></button>
-            <button class="chips chips--size-m" type="button"><span class="chips__caption">Google Tag Manager</span></button>
-            </div>
-          </section>
           <section class="sales-settings" id="salesSettings" aria-label="Точки продаж сайта" hidden>
-            <div class="sales-settings__head"><div><img class="sales-settings__icon" src="assets/img/comp/restaurant.svg" width="24" height="24" alt="">Ресторан <button class="btn btn--filled btn--style-pale btn--size-m rs-plus has-tip" type="button" data-sales-add aria-label="Добавить точки продаж" data-tip="Добавить точки продаж"><span class="btn__icon">&#xEADD;</span></button></div><span></span><button class="sales-settings__remove" type="button" id="salesSettingsRemove" data-comp-toggle="restaurant" aria-label="Отключить компонент «Ресторан»"><span class="ico">&#xE66C;</span></button></div>
+            <div class="sales-settings__head"><div>Ресторан</div></div>
+            <div class="rs-site__props comp-props">
+              <span class="rs-site__label">Выберите страницу товара</span><button class="sales-empty__link comp-props__pick" type="button">Выбрать</button>
+            </div>
             <div class="sales-rows" id="salesSettingsRows"></div>
             <div class="rs-site__chips comp-options" id="salesSettingsOptions"></div>
           </section>

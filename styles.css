@@ -523,6 +523,8 @@ ul { list-style: none; margin: 0; padding: 0; }
 .sales-empty { margin: 0; padding: 0 12px; color: #8991a9; font-size: 14px; line-height: 1.4; }
 .sales-empty__link { color: var(--link); } /* кнопка-ссылка в тексте: шрифт и строка — от текста */
 .sales-empty__link:hover { text-decoration: underline; }
+.comp-props { padding: 0 12px; margin-bottom: 4px; } /* свойства компонента в его группе: отступы — как у текста про точки продаж */
+.comp-props__pick { font-size: 14px; }
 .sales-row { position: relative; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); align-items: center; gap: 10px; min-height: 32px; padding: 0 12px; font-size: 14px; letter-spacing: -.1974px; }
 .sales-settings .sales-row { padding-right: 66px; }
 .sales-row:hover, .sales-row:focus-within { background: var(--menu-item-hover); }

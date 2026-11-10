@@ -31,11 +31,11 @@
       ] },
     ],
     team: [
-      { label: 'Design', name: 'Пахтусова Ирина', links: [
+      { label: 'Design', name: 'Смирнова Мария', links: [
         { title: 'Описание', href: 'https://online.sbis.ru/shared/disk/8a1d0f8c-06f5-47f1-924b-23c7f2efd143' },
       ] },
-      { label: 'Develop', name: 'Сухоручкин Андрей', links: [
-        { title: 'Разработка макета', href: 'https://tensor.saby.ru/opendoc.html?guid=01a10b9e-d00c-7be9-9307-91f4f08a3298&client=3' },
+      { label: 'Develop', name: 'Волоцкой Вадим', links: [
+        { title: 'Разработка макета', href: 'https://project.sbis.ru/opendoc.html?guid=019fa875-c83e-78a9-8b5e-efe37d762dc1&client=3' },
       ] },
     ],
     value: { scenario: stage.dataset.scenario },
@@ -53,7 +53,6 @@
   for (const g of $('.df-card--scen', frame.panel).querySelectorAll('.df-group')) g.classList.add('pop-sub');
 
   $('.df-team', frame.panel).before(el('div', 'pop-status', '<span class="ico24">&#xE651;</span>Не показывали'));
-  $('.df-team__name', frame.panel).after(el('span', 'df-team__name', 'Смирнова Мария')); // второй дизайнер в той же плашке: team в demo-frame знает одно имя на строку
 
   function stageRect(node) {
     const s = stage.getBoundingClientRect();
@@ -195,15 +194,9 @@
   // (widgetPage — карточка блюда, остальные — по widgets). widgetHome — страница для самого виджета: приходит, только если компонент подключили в «Параметрах сайта», а его виджета на сайте нет.
   // Виджет, поставленный из магазина, стоит там, куда его поставили (в сценариях компонентов — на главной), страницы для него не создаётся.
   // Порядок — как в таблице документа; он же порядок чипсов в «Параметрах сайта»
+  // Пока один компонент — «Ресторан»: без зависимостей, приносит страницу товара «Карточка блюда», без доп. настроек «Доставка»/«Самовывоз»
   const COMP = {
-    account: { name: 'Личный кабинет', desc: 'Вход и регистрация покупателя, профиль, бонусы и сохранённые адреса', deps: [], pages: ['Вход и регистрация', 'Профиль'], widgets: { 'Вход и регистрация': 'Вход и регистрация', 'Профиль': 'Профиль покупателя' } },
-    orders: { name: 'Заказы и оплата', desc: 'Корзина, оформление и оплата заказа онлайн, история заказов покупателя', deps: ['account'], pages: ['Корзина', 'Заказы', 'Карточка заказа'], widgets: { 'Корзина': 'Корзина', 'Заказы': 'История заказов', 'Карточка заказа': 'Карточка заказа' } },
-    shop: { name: 'Магазин', desc: 'Каталог товаров с ценами и остатками, корзина и заказ с доставкой', deps: ['orders'], options: ['Доставка', 'Самовывоз'], pages: [] },
-    restaurant: { name: 'Ресторан', desc: 'Меню и карточки блюд на сайте, цены и наличие из точек продаж', deps: ['orders'], options: ['Доставка', 'Самовывоз'], pages: ['Карточка блюда'], widget: 'Меню ресторана', widgetPage: 'Карточка блюда', widgetHome: 'Меню' },
-    services: { name: 'Сфера услуг', desc: 'Каталог услуг и онлайн-запись к специалисту на свободное время', deps: ['orders'], pages: [] },
-    hotel: { name: 'Отель', desc: 'Номера и цены, бронирование на даты с оплатой онлайн', deps: ['orders'], pages: [] },
-    loyalty: { name: 'Лояльность', desc: 'Бонусы, скидки и акции для покупателей, баланс в личном кабинете', deps: ['account'], pages: [] },
-    certificates: { name: 'Сертификаты и абонементы', desc: 'Продажа подарочных сертификатов и абонементов на сайте', deps: ['orders'], pages: [] },
+    restaurant: { name: 'Ресторан', desc: 'Меню и карточки блюд на сайте, цены и наличие из точек продаж', deps: [], pages: ['Карточка блюда'], widget: 'Меню ресторана', widgetPage: 'Карточка блюда' },
   };
   const compOn = new Set();    // подключавшиеся, в порядке подключения: их страницы и настройки на сайте
   const compRoots = new Set(); // подключённые виджетом, а не как зависимость
@@ -246,9 +239,10 @@
       return group;
     });
     compOptionsFill($('#salesSettingsOptions'), 'restaurant');
-    $('#compGroups').replaceChildren(...groups);
+    // В «Параметрах сайта» пока только группа «Ресторан»: остальные группы и «Добавить компонент» не показываем
+    $('#compGroups').replaceChildren(...groups.filter((g) => g.id === 'salesSettings'));
     $('#compChips').replaceChildren(...chips);
-    $('#compChipsBlock').hidden = !chips.length;
+    $('#compChipsBlock').hidden = true;
   }
   const salesCopy = (rows) => rows.map((row) => ({ ...row, prices: row.prices?.slice() }));
   const salesCurrent = () => salesDraft || salesSaved;
@@ -256,6 +250,8 @@
   // pricePick — прайс кнопкой, открывает выбор прайсов (прежний вид «Параметров сайта», Figma 2547:71389)
   function salesRenderRows(root, rows, pricePick = false) {
     root.replaceChildren();
+    root.hidden = pricePick && !rows.length; // в «Параметрах сайта» без точек — ни текста, ни пустой плашки
+    if (root.hidden) return;
     if (!rows.length) {
       const empty = el('p', 'sales-empty');
       // «точки продаж» — кнопка-ссылка, работает как «+»
@@ -304,8 +300,7 @@
   function salesRender() {
     compChipsRender();
     // Прежний вид «Параметров сайта»: точки продаж с прайсами — когда есть каталог или подключён «Ресторан»
-    $('#salesSettings').hidden = !catalogAdded && !compOn.has('restaurant');
-    $('#salesSettingsRemove').hidden = !compOn.has('restaurant'); // каталог без компонента отключать нечего
+    $('#salesSettings').hidden = false; // единственная группа «Параметров сайта» — видна всегда
     salesRenderRows($('#salesSettingsRows'), salesSaved, true);
     $('#salesData').hidden = !catalogAdded && !compOn.has('restaurant');
     $('#siteCatalog').classList.toggle('is-demo', (catalogHome || catalogMenu) && !salesSaved.length); // без точек продаж — демоданные
@@ -763,8 +758,7 @@
     siteCatalogShow(true);
     siteCatalog.classList.add('is-active');
     lsRender();
-    salesRender();
-    if (!compConfigured()) salesOpen();
+    salesRender(); // окно точек продаж при добавлении каталога не открываем
   }
   // Удаление виджета не трогает компонент и его страницы: они уходят только вместе с компонентом
   function siteRemoveCatalog() {
@@ -1628,13 +1622,9 @@
   }
   function lsRender() {
     const [own, ...groups] = lsOrdered();
-    const shown = groups.filter((g) => g.length);
-    lsList.classList.toggle('has-groups', shown.length > 0);
-    lsList.replaceChildren(...own.map(lsRow), ...shown.flatMap((g) => [lsGroupHead(g[0].comp), ...g.map((p) => {
-      const row = lsRow(p);
-      row.hidden = lsCollapsed.has(p.comp);
-      return row;
-    })]));
+    // Страницы компонентов — общим списком после своих, без заголовка группы компонента
+    lsList.classList.remove('has-groups');
+    lsList.replaceChildren(...own.map(lsRow), ...groups.flat().map(lsRow));
     lsRenderLines();
     siteShowPage(lsPage(lsActive));
     siteProductSyncShop();
