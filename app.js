@@ -28,6 +28,7 @@
       // { id: 'catalog-add', title: 'Добавление каталога' }, // пока скрыт; вернуть — раскомментировать и вернуть data-scenario="catalog-add" в index.html
       { id: 'typical', title: 'Типовое заполнение' },
     ],
+    links: [{ title: 'Демо «Компоненты»', href: 'https://mariesmi.github.io/popups/' }],
     team: [
       { label: 'Design', name: 'Смирнова Мария', links: [
         { title: 'Концепт', href: 'https://project.sbis.ru/shared/disk/63e4cc46-a77f-459c-9da3-3e4f1c731f59' },
@@ -47,10 +48,8 @@
     },
   });
 
-  // Панель сценариев: группа demo-frame в своём оформлении, статус показа добавляем поверх его разметки.
+  // Панель сценариев: группа demo-frame в своём оформлении.
   for (const g of $('.df-card--scen', frame.panel).querySelectorAll('.df-group')) g.classList.add('pop-sub');
-
-  $('.df-team', frame.panel).before(el('div', 'pop-status', '<span class="ico24">&#xE651;</span>Не показывали'));
 
   function stageRect(node) {
     const s = stage.getBoundingClientRect();

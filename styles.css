@@ -672,8 +672,6 @@ ul { list-style: none; margin: 0; padding: 0; }
 /* неактивный сценарий: в ките disabled только снимает ховер, цвета — readonly-токены */
 .df-radio:disabled .df-radio__text { color: var(--text-readonly_text-color); }
 .df-radio:disabled .df-radio__box::before { border-color: var(--border-readonly_border-color); }
-.pop-status { display: flex; align-items: center; gap: 6px; padding: 4px 6px 8px; font-size: 14px; letter-spacing: -.1974px; color: #8991a9; }
-.pop-status .ico24 { width: 20px; height: 20px; font-size: 20px; color: #8991a9; }
 
 /* ---------- Окно выбора цвета темы (Figma 19278:31867) ---------- */
 .color-win {
