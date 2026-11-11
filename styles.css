@@ -543,7 +543,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .sales-empty { margin: 0; padding: 0 12px; color: #8991a9; font-size: 14px; line-height: 1.4; }
 .sales-empty__link { color: var(--link); } /* кнопка-ссылка в тексте: шрифт и строка — от текста */
 .sales-empty__link:hover { text-decoration: underline; }
-.comp-props { padding: 0 12px; margin-bottom: 4px; } /* свойства компонента в его группе: отступы — как у текста про точки продаж */
+.comp-props { padding: 0 12px; margin-bottom: 4px; grid-auto-rows: 24px; row-gap: 8px; } /* свойства компонента в его группе: отступы — как у текста про точки продаж; свойство 24, между свойствами 8 */
 .comp-props__pick { font-size: 14px; }
 /* свойства — последнее видимое в плашке (точек продаж и доп. настроек нет): снизу только поле плашки 8px, как сверху */
 .rs-params .sales-settings:has(> .sales-rows[hidden]):has(> .comp-options:empty) .comp-props { margin-bottom: 0; }

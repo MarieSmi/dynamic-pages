@@ -113,9 +113,9 @@
     for (const name of ['shop', 'data']) $('#rs-' + name).hidden = name !== rsPanel || rsParamsOpen;
     rsParams.hidden = !rsParamsOpen;
     if (rsParamsOpen) productPageRender(); // при старте окно закрыто: до объявления productPage* не доходим
-    else { // меню страницы товара закрывается вместе с окном; через DOM — rsRender зовётся и до объявления productPage*
+    else { // меню выбора страницы закрывается вместе с окном; через DOM — rsRender зовётся и до объявления productPage*
       $('#productPageMenu').hidden = true;
-      $('#productPagePick').setAttribute('aria-expanded', 'false');
+      for (const b of document.querySelectorAll('[data-page-pick]')) b.setAttribute('aria-expanded', 'false');
     }
     for (const b of document.querySelectorAll('.rp-btn[data-rp]')) {
       const on = rsParamsOpen ? b.dataset.rp === 'settings' : b.dataset.rp === rsPanel;
@@ -560,7 +560,7 @@
   peDraggable($('#catSet'));
   // «Открывать товар» — тот же компонент, что «Способ отображения» в настройках страницы: своя подпись и два варианта
   const catSetOpenMode = openModeFill($('#catSet'), { title: 'Открывать товар', options: [['page', 'На странице'], ['window', 'В новом окне']] });
-  catSetOpenMode.set('window');
+  catSetOpenMode.set('page');
   const catSetGear = $('#siteCatalogSettings');
   function catSetClose() {
     const root = $('#catSet');
@@ -1923,28 +1923,37 @@
   });
   document.addEventListener('mousedown', (e) => { if (!e.target.closest('#lsAccessMenu, #lsAccess')) lsAccessClose(); });
 
-  // «Страница товара» в «Параметрах сайта»: одна страница на сайте — встаёт по клику сразу, несколько — радиоменю со страницами (как «Доступ»)
-  const productPagePick = $('#productPagePick');
+  // «Страница каталога» и «Страница товара» в «Параметрах сайта»: одна страница на сайте — встаёт по клику сразу,
+  // несколько — радиоменю со страницами (как «Доступ»). Меню одно на оба свойства, productPagePick — кнопка, из которой оно открыто
+  const pagePickBtns = [...document.querySelectorAll('[data-page-pick]')];
   const productPageMenu = $('#productPageMenu');
-  let productPageId = null;
+  const pagePicks = { catalog: null, product: null }; // id выбранной страницы по свойству
+  let productPagePick = null;
   function productPageRender() {
-    if (productPageId != null && !lsPage(productPageId)) productPageId = null; // выбранную страницу удалили
-    productPagePick.textContent = lsPage(productPageId)?.name ?? 'Выберите страницу';
+    for (const btn of pagePickBtns) {
+      const kind = btn.dataset.pagePick;
+      if (pagePicks[kind] != null && !lsPage(pagePicks[kind])) pagePicks[kind] = null; // выбранную страницу удалили
+      btn.textContent = lsPage(pagePicks[kind])?.name ?? 'Выберите страницу';
+    }
   }
-  function productPageSet(id) {
-    productPageId = id;
+  function productPageSet(kind, id) {
+    pagePicks[kind] = id;
     productPageRender();
   }
   function productPageClose() {
     productPageMenu.hidden = true;
-    productPagePick.setAttribute('aria-expanded', 'false');
+    for (const btn of pagePickBtns) btn.setAttribute('aria-expanded', 'false');
   }
-  productPagePick.addEventListener('click', () => {
-    if (!productPageMenu.hidden) { productPageClose(); return; }
-    if (lsPages.length === 1) { productPageSet(lsPages[0].id); return; }
+  for (const btn of pagePickBtns) btn.addEventListener('click', () => {
+    const kind = btn.dataset.pagePick;
+    const wasOpen = !productPageMenu.hidden && productPagePick === btn;
+    productPageClose();
+    if (wasOpen) return;
+    if (lsPages.length === 1) { productPageSet(kind, lsPages[0].id); return; }
+    productPagePick = btn;
     const list = $('.mw-menu__list', productPageMenu);
     list.replaceChildren(...lsPages.map((page) => {
-      const on = page.id === productPageId;
+      const on = page.id === pagePicks[kind];
       const item = el('button', 'mw-menu__item ls-mode__item' + (on ? ' is-selected' : ''), '<span class="ls-mode__toggle"></span><span class="mw-menu__text"></span>');
       item.type = 'button';
       item.setAttribute('role', 'menuitemradio');
@@ -1963,10 +1972,10 @@
   });
   productPageMenu.addEventListener('click', (e) => {
     const item = e.target.closest('[data-page-id]');
-    if (item) productPageSet(Number(item.dataset.pageId));
+    if (item) productPageSet(productPagePick.dataset.pagePick, Number(item.dataset.pageId));
     if (item || e.target.closest('#productPageClose')) { productPageClose(); productPagePick.focus(); }
   });
-  document.addEventListener('mousedown', (e) => { if (!e.target.closest('#productPageMenu, #productPagePick')) productPageClose(); });
+  document.addEventListener('mousedown', (e) => { if (!e.target.closest('#productPageMenu, [data-page-pick]')) productPageClose(); });
 
   function lsDescriptionShow(show) {
     lsSeoDescriptionField.hidden = !show;
@@ -2040,7 +2049,7 @@
     lsFinishRename(false);
     lsPages = lsInitialPages();
     lsActive = 1;
-    productPageId = null;
+    pagePicks.catalog = pagePicks.product = null;
     compOn.clear();
     compRoots.clear();
     catalogHomeSet(true);
@@ -2053,8 +2062,9 @@
       compRoots.add('restaurant');
       catalogHomeSet(false);
       lsPages = scenTypicalPages();
-      productPageId = lsPages.find((p) => p.product).id;
-      lsActive = lsPages.find((p) => p.name === 'Меню').id; // сайт открывается на «Меню» с каталогом
+      pagePicks.product = lsPages.find((p) => p.product).id;
+      pagePicks.catalog = lsPages.find((p) => p.name === 'Меню').id;
+      lsActive = pagePicks.catalog; // сайт открывается на «Меню» с каталогом
     }
     salesSaved = catalogAdded ? ROOT_SALES.slice(0, 2).map((point) => ({ id: point.id, price: point.price })) : [];
     shopCatalogPin.hidden = catalogAdded;
