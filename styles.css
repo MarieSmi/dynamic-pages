@@ -132,16 +132,6 @@ ul { list-style: none; margin: 0; padding: 0; }
 .site-blank { min-height: 100%; background: #fff; }
 .site-blank > .site-header { background: linear-gradient(rgba(255, 255, 255, .5), rgba(255, 255, 255, .5)), #f3f3f3; }
 .site-blank__section { height: 350px; padding: 32px var(--site-gutter); cursor: default; }
-/* Страница товара «В новом окне» (вид «в окне» из popups, Figma 2167:87296): окно 800 по центру контента, без шапки и подвала сайта; крестик выходит за край окна */
-.content.is-window { background: none; }
-.site-blank.is-window { background: none; }
-.site-blank.is-window > .site-header, .site-blank.is-window > .site-footer, .site-blank:not(.is-window) .site-blank__close { display: none; }
-.is-window > .site-blank__body { position: relative; width: 800px; margin: 12px auto; padding: 12px; background: #fff; border-radius: 10px; box-shadow: 0 2px 12px rgba(0, 0, 0, .08); } /* мягкая тень: у --win-shadow размытие 46px, его обрезает край области контента */
-.site-blank__close.mw-menu__close { top: 12px; cursor: default; }
-.ch-tumbler.is-off { background: var(--background-opacity-translucent_background-color_light, rgba(0, 0, 0, .03)); }
-.ch-tumbler.is-off .ch-seg { cursor: default; }
-.ch-tumbler.is-off .ch-seg__ico { color: var(--text-readonly_text-color, #ccc); }
-.ch-tumbler.is-off .ch-seg.is-on .ch-seg__ico { color: var(--text-unaccented_text-color, #999); }
 .site-section.has-widget, .site-blank__section.has-widget { height: auto; } /* виджет стоит в зоне контента, отступы секции остаются; высота — по виджету */
 .site-product { cursor: default; }
 .site-product__img { display: block; margin: 0 auto; max-width: 100%; height: auto; }
